@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/Button';
-import { Upload, FileText, LayoutDashboard, Sparkles, Network, BookOpen, Bell, User, Brain, UserCircle, PenTool, Cpu, Zap, AlertTriangle } from 'lucide-react';
+import { Upload, FileText, LayoutDashboard, Sparkles, Network, BookOpen, Bell, User, Brain, UserCircle, PenTool, Cpu, Zap, AlertTriangle, LogOut, ChevronDown, Settings } from 'lucide-react';
 import axios from 'axios';
 import { ViabilityAnalyzer } from '../../components/dashboard/ViabilityAnalyzer';
 import { StructureGenerator } from '../../components/dashboard/StructureGenerator';
@@ -10,12 +10,22 @@ import { ThesisProfile } from '../../components/dashboard/ThesisProfile';
 import { AcademicWritingAssistant } from '../../components/dashboard/AcademicWritingAssistant';
 import { DeepLearningAdvisor } from '../../components/dashboard/DeepLearningAdvisor';
 import { ChapterOneGenerator } from '../../components/dashboard/ChapterOneGenerator';
+import { ProjectSettings } from '../../components/dashboard/ProjectSettings';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThesisStore } from '../../store/useThesisStore';
+import { useAuthStore } from '../../store/useAuthStore';
 
 const Dashboard: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'profile' | 'regulations' | 'viability' | 'writing' | 'tech' | 'structure' | 'chapter1' | 'chapter_auto'>('profile');
+    const [activeTab, setActiveTab] = useState<'profile' | 'regulations' | 'viability' | 'writing' | 'tech' | 'structure' | 'chapter1' | 'chapter_auto' | 'settings'>('profile');
     const { analysisResult, setAnalysisResult, grado, area } = useThesisStore();
+    const { session, signOut } = useAuthStore();
+    const user = session?.user?.user_metadata;
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+    // Initial load
+    useEffect(() => {
+        useThesisStore.getState().fetchUserProject();
+    }, []);
 
     // States for local management
     const [file, setFile] = useState<File | null>(null);
@@ -78,12 +88,57 @@ const Dashboard: React.FC = () => {
                         </button>
                         <div className="h-10 w-px bg-slate-800 mx-2 hidden md:block" />
                         <div className="flex items-center gap-3 pl-2">
-                            <div className="text-right hidden sm:block">
-                                <p className="text-sm font-bold">Joel Ircanaupa</p>
-                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Estudiante de Sistemas</p>
-                            </div>
-                            <div className="h-10 w-10 bg-slate-800 rounded-full flex items-center justify-center border border-slate-700">
-                                <User className="h-5 w-5 text-slate-400" />
+                            <div className="flex items-center gap-3 pl-2 relative">
+                                <button
+                                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                    className="flex items-center gap-2 group outline-none"
+                                >
+                                    <div className="h-10 w-10 bg-slate-800 rounded-full flex items-center justify-center border border-slate-700 overflow-hidden relative group-hover:border-primary-500 transition-colors">
+                                        {user?.avatar_url ? (
+                                            <img
+                                                src={user.avatar_url}
+                                                alt="Perfil"
+                                                className="h-full w-full object-cover"
+                                                referrerPolicy="no-referrer"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                    e.currentTarget.parentElement?.classList.add('fallback-active');
+                                                }}
+                                            />
+                                        ) : null}
+                                        <User className={`h-5 w-5 text-slate-400 absolute transition-opacity ${user?.avatar_url ? 'opacity-0' : 'opacity-100'}`} />
+                                        <style>{`
+                                        .fallback-active img { display: none; }
+                                        .fallback-active svg { opacity: 1 !important; }
+                                    `}</style>
+                                    </div>
+                                    <ChevronDown size={14} className={`text-slate-500 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                <AnimatePresence>
+                                    {isProfileOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="absolute top-12 right-0 w-64 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-4 z-50 backdrop-blur-xl"
+                                        >
+                                            <div className="pb-4 mb-4 border-b border-slate-800">
+                                                <p className="text-sm font-bold text-white truncate">{user?.full_name || 'Usuario'}</p>
+                                                <p className="text-xs text-slate-500 truncate">{session?.user?.email}</p>
+                                            </div>
+
+                                            <button
+                                                onClick={() => signOut()}
+                                                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-red-400 hover:bg-red-500/10 text-sm font-medium transition-colors"
+                                            >
+                                                <LogOut size={16} />
+                                                Cerrar Sesión
+                                            </button>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
                         </div>
                     </div>
@@ -120,6 +175,10 @@ const Dashboard: React.FC = () => {
                             <NavButton active={activeTab === 'tech'} onClick={() => setActiveTab('tech')} icon={<Cpu />} label="Asesor Técnico" />
                             <NavButton active={activeTab === 'structure'} onClick={() => setActiveTab('structure')} icon={<Network />} label="Estructura" />
                             <NavButton active={activeTab === 'chapter1'} onClick={() => setActiveTab('chapter1')} icon={<BookOpen />} label="Revisión Cap I" />
+
+                            <div className="pt-4 mt-4 border-t border-slate-800/50">
+                                <NavButton active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} icon={<Settings />} label="Configuración" />
+                            </div>
                         </nav>
                     </aside>
 
@@ -138,6 +197,7 @@ const Dashboard: React.FC = () => {
                                 {activeTab === 'writing' && <AcademicWritingAssistant />}
                                 {activeTab === 'tech' && <DeepLearningAdvisor />}
                                 {activeTab === 'chapter_auto' && <ChapterOneGenerator />}
+                                {activeTab === 'settings' && <ProjectSettings />}
 
                                 {activeTab === 'regulations' && (
                                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

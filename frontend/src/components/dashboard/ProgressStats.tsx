@@ -35,16 +35,16 @@ export const ThesisOverview: React.FC = () => {
 
     return (
         <div className="grid md:grid-cols-4 gap-6 mb-8">
-            <ProgressStats label="Avance General" value={45} total={100} color="primary" />
-            <ProgressStats label="Capítulo I" value={80} total={100} color="green" />
-            <ProgressStats label="Marco Teórico" value={10} total={100} color="yellow" />
+            <ProgressStats label="Avance General" value={0} total={100} color="primary" />
+            <ProgressStats label="Capítulo I" value={0} total={100} color="green" />
+            <ProgressStats label="Marco Teórico" value={0} total={100} color="yellow" />
             <div className="bg-primary-600/10 p-5 rounded-2xl border border-primary-500/20 flex items-center gap-4">
                 <div className="bg-primary-600 p-3 rounded-xl">
                     <Award className="h-6 w-6 text-white" />
                 </div>
                 <div>
                     <p className="text-xs text-primary-400 font-bold uppercase">Estado actual</p>
-                    <p className="text-sm font-semibold text-white">Fase de Redacción</p>
+                    <p className="text-sm font-semibold text-white">Inicio de Proyecto</p>
                 </div>
             </div>
         </div>

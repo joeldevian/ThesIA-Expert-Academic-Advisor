@@ -3,6 +3,7 @@ import { Button } from '../components/ui/Button';
 import { Brain, FileText, CheckCircle, GraduationCap, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/useAuthStore';
 
 const LandingPage: React.FC = () => {
     const navigate = useNavigate();
@@ -10,10 +11,10 @@ const LandingPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#0f172a] text-white">
             {/* Hero Section */}
-            <header className="relative overflow-hidden pt-16 pb-32">
+            <header className="relative overflow-hidden pt-6 pb-32">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary-900/20 via-transparent to-transparent -z-10" />
 
-                <nav className="container mx-auto px-6 h-16 flex items-center justify-between mb-20">
+                <nav className="container mx-auto px-6 h-16 flex items-center justify-between mb-10">
                     <div className="flex items-center gap-2">
                         <div className="bg-primary-600 p-2 rounded-xl">
                             <Brain className="h-6 w-6" />
@@ -23,7 +24,7 @@ const LandingPage: React.FC = () => {
                     <div className="flex items-center gap-6 text-sm font-medium text-slate-400">
                         <a href="#features" className="hover:text-white transition-colors">Funciones</a>
                         <a href="#about" className="hover:text-white transition-colors">Metodología</a>
-                        <Button variant="ghost">Iniciar Sesión</Button>
+                        <Button variant="ghost" onClick={() => useAuthStore.getState().signInWithGoogle()}>Iniciar Sesión</Button>
                         <Button size="sm" onClick={() => navigate('/dashboard')}>Ir al Dashboard</Button>
                     </div>
                 </nav>
@@ -45,7 +46,14 @@ const LandingPage: React.FC = () => {
                             de viabilidad técnica. La herramienta definitiva para terminar tu carrera.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Button size="lg" icon={GraduationCap} onClick={() => navigate('/dashboard')}>Comenzar mi Proyecto</Button>
+                            <Button size="lg" icon={GraduationCap} onClick={() => {
+                                const session = useAuthStore.getState().session;
+                                if (session) {
+                                    navigate('/dashboard');
+                                } else {
+                                    useAuthStore.getState().signInWithGoogle();
+                                }
+                            }}>Comenzar mi Proyecto</Button>
                             <Button size="lg" variant="outline" icon={ChevronRight}>Ver Demo</Button>
                         </div>
                     </motion.div>

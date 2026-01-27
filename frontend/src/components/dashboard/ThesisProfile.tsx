@@ -4,6 +4,7 @@ import { Award, BookOpen, AlertTriangle, CheckCircle, Info } from 'lucide-react'
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 
+
 export const ThesisProfile: React.FC = () => {
     const {
         grado, setGrado,
@@ -157,6 +158,7 @@ export const ThesisProfile: React.FC = () => {
                         )}
                     </AnimatePresence>
                 </div>
+
             </div>
         </div>
     );
