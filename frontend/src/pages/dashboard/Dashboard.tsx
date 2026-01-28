@@ -14,6 +14,7 @@ import { ProjectSettings } from '../../components/dashboard/ProjectSettings';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThesisStore } from '../../store/useThesisStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { ErrorModal } from '../../components/ui/ErrorModal';
 
 const Dashboard: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'profile' | 'regulations' | 'viability' | 'writing' | 'tech' | 'structure' | 'chapter1' | 'chapter_auto' | 'settings'>('profile');
@@ -30,6 +31,12 @@ const Dashboard: React.FC = () => {
     // States for local management
     const [file, setFile] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [errorInfo, setErrorInfo] = useState<{ isOpen: boolean, title: string, message: string, type: 'insufficient_balance' | 'network_error' | 'generic' }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'generic'
+    });
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -46,9 +53,32 @@ const Dashboard: React.FC = () => {
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/analyze/regulations`, formData);
             setAnalysisResult(response.data);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error:', error);
-            alert('Error al conectar con el servidor.');
+            const errorData = error.response?.data;
+
+            if (error.response?.status === 402 || errorData?.type === 'insufficient_balance') {
+                setErrorInfo({
+                    isOpen: true,
+                    title: "Saldo Insuficiente",
+                    message: errorData?.message || "Tu cuenta de DeepSeek no tiene saldo. Por favor recarga créditos para continuar con la asesoría.",
+                    type: 'insufficient_balance'
+                });
+            } else if (!error.response) {
+                setErrorInfo({
+                    isOpen: true,
+                    title: "Error de Conexión",
+                    message: "No se puede establecer conexión con el servidor backend. Asegúrate de que esté encendido.",
+                    type: 'network_error'
+                });
+            } else {
+                setErrorInfo({
+                    isOpen: true,
+                    title: "Error Inesperado",
+                    message: errorData?.message || "Ocurrió un error al procesar tu solicitud. Inténtalo de nuevo más tarde.",
+                    type: 'generic'
+                });
+            }
         } finally {
             setIsLoading(false);
         }
@@ -271,6 +301,14 @@ const Dashboard: React.FC = () => {
                     </main>
                 </div>
             </div>
+
+            <ErrorModal
+                isOpen={errorInfo.isOpen}
+                onClose={() => setErrorInfo({ ...errorInfo, isOpen: false })}
+                title={errorInfo.title}
+                message={errorInfo.message}
+                type={errorInfo.type}
+            />
         </div>
     );
 };

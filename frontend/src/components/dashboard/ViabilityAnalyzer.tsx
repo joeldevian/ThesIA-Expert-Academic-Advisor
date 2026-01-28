@@ -5,11 +5,18 @@ import { Target, Sparkles, TrendingUp, AlertTriangle, Lightbulb } from 'lucide-r
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThesisStore } from '../../store/useThesisStore';
+import { ErrorModal } from '../ui/ErrorModal';
 
 export const ViabilityAnalyzer: React.FC = () => {
     const { title, objective, variables, scope, setTitle, setObjective, setVariables, setScope } = useThesisStore();
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<any>(null);
+    const [errorInfo, setErrorInfo] = useState<{ isOpen: boolean, title: string, message: string, type: 'insufficient_balance' | 'network_error' | 'generic' }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'generic'
+    });
 
     const handleEvaluate = async () => {
         setIsLoading(true);
@@ -21,9 +28,32 @@ export const ViabilityAnalyzer: React.FC = () => {
                 scope
             });
             setResult(response.data);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error al evaluar:', error);
-            alert('Error al conectar con el servidor de evaluación.');
+            const errorData = error.response?.data;
+
+            if (error.response?.status === 402 || errorData?.type === 'insufficient_balance') {
+                setErrorInfo({
+                    isOpen: true,
+                    title: "Saldo Insuficiente",
+                    message: "Tu cuenta de DeepSeek no tiene saldo. Por favor recarga créditos para continuar con la evaluación de viabilidad.",
+                    type: 'insufficient_balance'
+                });
+            } else if (!error.response) {
+                setErrorInfo({
+                    isOpen: true,
+                    title: "Error de Conexión",
+                    message: "No se puede conectar con el servidor. Verifica que el backend esté ejecutándose.",
+                    type: 'network_error'
+                });
+            } else {
+                setErrorInfo({
+                    isOpen: true,
+                    title: "Error Académico",
+                    message: errorData?.message || "Ocurrió un error al procesar el análisis. Inténtalo de nuevo.",
+                    type: 'generic'
+                });
+            }
         } finally {
             setIsLoading(false);
         }
@@ -145,6 +175,14 @@ export const ViabilityAnalyzer: React.FC = () => {
                     </AnimatePresence>
                 </div>
             </div>
+
+            <ErrorModal
+                isOpen={errorInfo.isOpen}
+                onClose={() => setErrorInfo({ ...errorInfo, isOpen: false })}
+                title={errorInfo.title}
+                message={errorInfo.message}
+                type={errorInfo.type}
+            />
         </div>
     );
 };
