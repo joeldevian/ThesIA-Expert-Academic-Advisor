@@ -14,7 +14,7 @@ export const ViabilityAnalyzer: React.FC = () => {
     const handleEvaluate = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/thesis/evaluate-viability', {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/thesis/evaluate-viability`, {
                 title,
                 objective,
                 variables: variables.split(',').map(v => v.trim()).filter(v => v !== ''),
@@ -107,7 +107,7 @@ export const ViabilityAnalyzer: React.FC = () => {
                                         </p>
                                     </div>
                                     <div className={`px-4 py-2 rounded-lg font-bold ${result.verdict === 'Viable' ? 'bg-green-500/10 text-green-500' :
-                                            result.verdict === 'No viable' ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-500'
+                                        result.verdict === 'No viable' ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-500'
                                         }`}>
                                         {result.verdict}
                                     </div>

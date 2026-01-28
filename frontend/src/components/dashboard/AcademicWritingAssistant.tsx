@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TextArea } from '../ui/Input';
 import { Button } from '../ui/Button';
-import { PenTool, Wand2, CheckCircle2, AlertCircle, Copy, RotateCcw, Sparkles } from 'lucide-react';
+import { PenTool, Wand2, CheckCircle2, Copy, RotateCcw, Sparkles } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -16,7 +16,7 @@ export const AcademicWritingAssistant: React.FC = () => {
         if (!draft) return;
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/writing/analyze', { text: draft });
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/thesis/expand-text`, { text: draft });
             setAnalysis(response.data);
         } catch (error) {
             console.error(error);
@@ -29,7 +29,7 @@ export const AcademicWritingAssistant: React.FC = () => {
         if (!draft) return;
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/writing/generate-versions', {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/writing/generate-versions`, {
                 context_info: draft,
                 style_request: "Ingeniería de Sistemas - Tesis"
             });

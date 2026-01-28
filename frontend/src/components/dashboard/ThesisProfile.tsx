@@ -31,7 +31,7 @@ export const ThesisProfile: React.FC = () => {
     const validate = async () => {
         if (!grado || !area || !nivel) return;
         try {
-            const response = await axios.post('http://localhost:8000/profile/validate', {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/profile/validate`, {
                 grado, area, nivel
             });
             setProfileValidation(response.data);

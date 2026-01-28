@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useThesisStore } from '../../store/useThesisStore';
 import { Cpu, Database, Network, Zap, HardDrive, Calculator } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { Input, TextArea } from '../ui/Input';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,7 +17,7 @@ export const DeepLearningAdvisor: React.FC = () => {
     const handleGenerateArchitecture = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/tech/generate-architecture', {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/thesis/generate-deep-learning-advisor`, {
                 model_type: modelType,
                 framework,
                 task_description: title || "Clasificación de imágenes"
@@ -33,7 +32,7 @@ export const DeepLearningAdvisor: React.FC = () => {
 
     const handleEstimateResources = async () => {
         try {
-            const response = await axios.post('http://localhost:8000/tech/estimate-resources', {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/tech/estimate-resources`, {
                 params_millions: params
             });
             setResources(response.data);

@@ -19,7 +19,7 @@ export const ChapterOneAdvisor: React.FC = () => {
     const handleReview = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/thesis/review-chapter-one', {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/thesis/review-chapter-one`, {
                 title: title || "Tesis sin título",
                 problem_description: data.problem,
                 objectives: data.objectives,

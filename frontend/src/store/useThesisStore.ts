@@ -85,7 +85,7 @@ export const useThesisStore = create<ThesisState>((set) => ({
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('projects')
                 .select('content')
                 .eq('user_id', user.id)

@@ -24,7 +24,7 @@ export const ChapterOneGenerator: React.FC = () => {
     const handleGenerate = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/writing/generate-full-chapter', {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/thesis/generate-chapter-one`, {
                 data: formData,
                 profile: { grado, area, nivel }
             });

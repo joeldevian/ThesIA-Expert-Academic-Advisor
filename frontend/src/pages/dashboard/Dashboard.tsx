@@ -44,7 +44,7 @@ const Dashboard: React.FC = () => {
         formData.append('file', file);
 
         try {
-            const response = await axios.post('http://localhost:8000/analyze/regulations', formData);
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/analyze/regulations`, formData);
             setAnalysisResult(response.data);
         } catch (error) {
             console.error('Error:', error);
